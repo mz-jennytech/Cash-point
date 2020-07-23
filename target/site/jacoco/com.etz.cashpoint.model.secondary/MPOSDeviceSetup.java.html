@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MPOSDeviceSetup.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.model.secondary</a> &gt; <span class="el_source">MPOSDeviceSetup.java</span></div><h1>MPOSDeviceSetup.java</h1><pre class="source lang-java linenums">/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.etz.cashpoint.model.secondary;
+
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import lombok.Data;
+
+/**
+ *
+ * @author mishael.harry
+ */
+<span class="pc bnc" id="L27" title="All 70 branches missed.">@Data</span>
+@Entity
+@Table(name = &quot;mpos_device_setup&quot;)
+public class MPOSDeviceSetup implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = &quot;id&quot;)
+<span class="nc" id="L38">    private Integer id;</span>
+
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 20)
+    @Column(name = &quot;mobile_no&quot;)
+<span class="nc" id="L44">    private String mobileNo;</span>
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 30)
+    @Column(name = &quot;serial_number&quot;)
+<span class="nc" id="L49">    private String serialNumber;</span>
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 15)
+    @Column(name = &quot;terminal_id&quot;)
+<span class="nc" id="L54">    private String terminalId;</span>
+    @Column(name = &quot;enabled&quot;)
+<span class="nc" id="L56">    private Boolean enabled ;</span>
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 30)
+    @Column(name = &quot;created_by&quot;)
+<span class="nc" id="L61">    private String createdBy;</span>
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = &quot;created_date&quot;)
+    @Temporal(TemporalType.TIMESTAMP)
+<span class="nc" id="L66">    private Date createdDate;</span>
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = &quot;modified_date&quot;)
+    @Temporal(TemporalType.TIMESTAMP)
+<span class="nc" id="L71">    private Date modifiedDate;</span>
+        
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

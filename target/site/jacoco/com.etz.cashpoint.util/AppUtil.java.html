@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.util</a> &gt; <span class="el_source">AppUtil.java</span></div><h1>AppUtil.java</h1><pre class="source lang-java linenums">/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.etz.cashpoint.util;
+
+import com.etz.cashpoint.exception.BadRequestException;
+import com.etz.cashpoint.model.primary.Transaction;
+import com.etz.cashpoint.model.primary.UserIP;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import static java.net.Proxy.Type.HTTP;
+
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+/**
+ *
+ * @author mishael.harry
+ */
+<span class="fc" id="L41">@Slf4j</span>
+<span class="nc" id="L42">public class AppUtil {</span>
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+<span class="fc" id="L47">    private static HashMap&lt;String, String&gt; userIps = new HashMap&lt;&gt;();</span>
+
+    private static final String ALPHA_NUMERIC_STRING = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&quot;;
+
+    public static void loadUserIP(List&lt;UserIP&gt; userIPList){
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (userIPList != null){</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">            for (UserIP userIP: userIPList) {</span>
+<span class="fc" id="L54">                userIps.put(userIP.getIp(), userIP.getUsername());</span>
+<span class="fc" id="L55">                log.info(&quot;Loading IP address...&quot;);</span>
+<span class="fc" id="L56">                log.info(&quot;IP: &quot; + userIP.getIp() + &quot; Username: &quot; + userIP.getUsername());</span>
+<span class="fc" id="L57">            }</span>
+        }
+<span class="fc" id="L59">    }</span>
+
+    public static boolean validateUserIp(String ip){
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (userIps.containsKey(ip)){</span>
+<span class="nc" id="L63">            return true;</span>
+        }
+<span class="nc" id="L65">        return false;</span>
+    }
+
+    public static String generateReference(int count) {
+<span class="nc" id="L69">        return RandomStringUtils.randomAlphanumeric(count);</span>
+    }
+
+    public static void validatePageNumberAndSize(int page, int size) {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (page &lt; 0) {</span>
+<span class="nc" id="L74">            throw new BadRequestException(&quot;Page number cannot be less than zero.&quot;);</span>
+        }
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (size &gt; AppConstants.MAX_PAGE_SIZE) {</span>
+<span class="nc" id="L78">            throw new BadRequestException(&quot;Page size must not be greater than &quot; + AppConstants.MAX_PAGE_SIZE);</span>
+        }
+<span class="nc" id="L80">    }</span>
+
+    public static String statusDescription(int value) {
+<span class="nc bnc" id="L83" title="All 6 branches missed.">        switch (value) {</span>
+            case -1:
+<span class="nc" id="L85">                return &quot;No Destination Merchant Account&quot;;</span>
+            case 0:
+<span class="nc" id="L87">                return &quot;Pending&quot;;</span>
+            case 1:
+<span class="nc" id="L89">                return &quot;Success&quot;;</span>
+            case 2:
+<span class="nc" id="L91">                return &quot;Failed&quot;;</span>
+            case 3:
+<span class="nc" id="L93">                return &quot;No Response from SwitchIT&quot;;</span>
+        }
+<span class="nc" id="L95">        return &quot;Unknown&quot;;</span>
+    }
+
+    public static Instant convertDate(String timestamp) {
+<span class="nc" id="L99">        final DateTimeFormatter formatter = DateTimeFormatter</span>
+<span class="nc" id="L100">                .ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;)</span>
+<span class="nc" id="L101">                .withZone(ZoneId.systemDefault());</span>
+<span class="nc" id="L102">        return Instant.from(formatter.parse(timestamp));</span>
+    }
+
+    public JsonObject sendPostwithSSL(String url, String xmlString) {
+<span class="nc" id="L106">        System.out.println(url);</span>
+<span class="nc" id="L107">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="nc" id="L108">        headers.add(&quot;Content-Type&quot;, &quot;text/xml&quot;);</span>
+<span class="nc" id="L109">        headers.add(&quot;user-agent&quot;, &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36&quot;);</span>
+
+<span class="nc" id="L111">        HttpEntity&lt;String&gt; requestEntity = new HttpEntity&lt;&gt;(xmlString, headers);</span>
+<span class="nc" id="L112">        ResponseEntity&lt;JsonObject&gt; response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, JsonObject.class);</span>
+<span class="nc" id="L113">        System.out.println(&quot;FundGate Response: &quot; + response.toString());</span>
+<span class="nc" id="L114">        return null;</span>
+    }
+
+    public static String getClientIp(HttpServletRequest request) {
+<span class="nc" id="L118">        String remoteAddr = &quot;&quot;;</span>
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (request != null) {</span>
+<span class="nc" id="L121">            remoteAddr = request.getHeader(&quot;X-FORWARDED-FOR&quot;);</span>
+<span class="nc" id="L122">            log.info(&quot;Request IP X-Forwarded- For : &quot; + remoteAddr);</span>
+<span class="nc bnc" id="L123" title="All 4 branches missed.">            if (remoteAddr == null || &quot;&quot;.equals(remoteAddr)) {</span>
+<span class="nc" id="L124">                remoteAddr = request.getRemoteAddr();</span>
+<span class="nc" id="L125">                log.info(&quot;Request IP remote address: &quot; + remoteAddr);</span>
+            }
+        }
+<span class="nc" id="L128">        return remoteAddr;</span>
+    }
+
+    /*public static String getClientIp(HttpServletRequest request) {
+        String remoteAddr = &quot;&quot;;
+        if (request != null) {
+            remoteAddr = request.getRemoteAddr();
+            log.info(&quot;Request IP remote address: &quot; + remoteAddr);
+        }
+        return remoteAddr;
+    }*/
+
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

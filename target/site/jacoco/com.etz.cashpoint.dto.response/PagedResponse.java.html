@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PagedResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.dto.response</a> &gt; <span class="el_source">PagedResponse.java</span></div><h1>PagedResponse.java</h1><pre class="source lang-java linenums">/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.etz.cashpoint.dto.response;
+
+import java.util.List;
+
+/**
+ *
+ * @author mishael.harry
+ */
+public class PagedResponse&lt;T&gt; {
+
+    private boolean status;
+    private String message;
+    private List&lt;T&gt; result;
+    private int page;
+    private int size;
+    private long totalElements;
+    private int totalPages;
+    private boolean last;
+
+<span class="nc" id="L25">    public PagedResponse() {</span>
+<span class="nc" id="L26">    }</span>
+
+<span class="nc" id="L28">    public PagedResponse(boolean status, List&lt;T&gt; result, int page, int size, long totalElements, int totalPages, boolean last) {</span>
+<span class="nc" id="L29">        this.status = status;</span>
+<span class="nc" id="L30">        this.result = result;</span>
+<span class="nc" id="L31">        this.page = page;</span>
+<span class="nc" id="L32">        this.size = size;</span>
+<span class="nc" id="L33">        this.totalElements = totalElements;</span>
+<span class="nc" id="L34">        this.totalPages = totalPages;</span>
+<span class="nc" id="L35">        this.last = last;</span>
+<span class="nc" id="L36">    }</span>
+
+<span class="nc" id="L38">    public PagedResponse(String message, boolean succeeded, List&lt;T&gt; result, int page, int size, long totalElements, int totalPages, boolean last) {</span>
+<span class="nc" id="L39">        this.message = message;</span>
+<span class="nc" id="L40">        this.status = succeeded;</span>
+<span class="nc" id="L41">        this.result = result;</span>
+<span class="nc" id="L42">        this.page = page;</span>
+<span class="nc" id="L43">        this.size = size;</span>
+<span class="nc" id="L44">        this.totalElements = totalElements;</span>
+<span class="nc" id="L45">        this.totalPages = totalPages;</span>
+<span class="nc" id="L46">        this.last = last;</span>
+<span class="nc" id="L47">    }</span>
+
+    public boolean isStatus() {
+<span class="nc" id="L50">        return status;</span>
+    }
+
+    public void setStatus(boolean status) {
+<span class="nc" id="L54">        this.status = status;</span>
+<span class="nc" id="L55">    }</span>
+
+    
+    public List&lt;T&gt; getResult() {
+<span class="nc" id="L59">        return result;</span>
+    }
+
+    public void setResult(List&lt;T&gt; result) {
+<span class="nc" id="L63">        this.result = result;</span>
+<span class="nc" id="L64">    }</span>
+
+    public int getPage() {
+<span class="nc" id="L67">        return page;</span>
+    }
+
+    public void setPage(int page) {
+<span class="nc" id="L71">        this.page = page;</span>
+<span class="nc" id="L72">    }</span>
+
+    public int getSize() {
+<span class="nc" id="L75">        return size;</span>
+    }
+
+    public void setSize(int size) {
+<span class="nc" id="L79">        this.size = size;</span>
+<span class="nc" id="L80">    }</span>
+
+    public long getTotalElements() {
+<span class="nc" id="L83">        return totalElements;</span>
+    }
+
+    public void setTotalElements(long totalElements) {
+<span class="nc" id="L87">        this.totalElements = totalElements;</span>
+<span class="nc" id="L88">    }</span>
+
+    public int getTotalPages() {
+<span class="nc" id="L91">        return totalPages;</span>
+    }
+
+    public void setTotalPages(int totalPages) {
+<span class="nc" id="L95">        this.totalPages = totalPages;</span>
+<span class="nc" id="L96">    }</span>
+
+    public boolean isLast() {
+<span class="nc" id="L99">        return last;</span>
+    }
+
+    public void setLast(boolean last) {
+<span class="nc" id="L103">        this.last = last;</span>
+<span class="nc" id="L104">    }</span>
+
+    public String getMessage() {
+<span class="nc" id="L107">        return message;</span>
+    }
+
+    public void setMessage(String message) {
+<span class="nc" id="L111">        this.message = message;</span>
+<span class="nc" id="L112">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

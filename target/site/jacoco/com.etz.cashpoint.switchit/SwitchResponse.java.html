@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwitchResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.switchit</a> &gt; <span class="el_source">SwitchResponse.java</span></div><h1>SwitchResponse.java</h1><pre class="source lang-java linenums">package com.etz.cashpoint.switchit;
+
+/**
+ *
+ * @author mishael.harry
+ */
+public class SwitchResponse {
+
+    private String reference;
+    private Double amount;
+    private String totalFailed;
+    private String totalSuccess;
+    private String error;
+    private String message;
+    private String otherReference;
+    private String action;
+    private String openingBalance;
+    private String closingBalance;
+
+<span class="nc" id="L20">    public SwitchResponse(String reference, Double amount, String totalFailed, String totalSuccess, String error, String message, String otherReference, String action, String openingBalance, String closingBalance) {</span>
+<span class="nc" id="L21">        this.reference = reference;</span>
+<span class="nc" id="L22">        this.amount = amount;</span>
+<span class="nc" id="L23">        this.totalFailed = totalFailed;</span>
+<span class="nc" id="L24">        this.totalSuccess = totalSuccess;</span>
+<span class="nc" id="L25">        this.error = error;</span>
+<span class="nc" id="L26">        this.message = message;</span>
+<span class="nc" id="L27">        this.otherReference = otherReference;</span>
+<span class="nc" id="L28">        this.action = action;</span>
+<span class="nc" id="L29">        this.openingBalance = openingBalance;</span>
+<span class="nc" id="L30">        this.closingBalance = closingBalance;</span>
+<span class="nc" id="L31">    }</span>
+
+
+    public String getReference() {
+<span class="nc" id="L35">        return reference;</span>
+    }
+
+    public void setReference(String reference) {
+<span class="nc" id="L39">        this.reference = reference;</span>
+<span class="nc" id="L40">    }</span>
+
+    public Double getAmount() {
+<span class="nc" id="L43">        return amount;</span>
+    }
+
+    public void setAmount(Double amount) {
+<span class="nc" id="L47">        this.amount = amount;</span>
+<span class="nc" id="L48">    }</span>
+
+    public String getTotalFailed() {
+<span class="nc" id="L51">        return totalFailed;</span>
+    }
+
+    public void setTotalFailed(String totalFailed) {
+<span class="nc" id="L55">        this.totalFailed = totalFailed;</span>
+<span class="nc" id="L56">    }</span>
+
+    public String getTotalSuccess() {
+<span class="nc" id="L59">        return totalSuccess;</span>
+    }
+
+    public void setTotalSuccess(String totalSuccess) {
+<span class="nc" id="L63">        this.totalSuccess = totalSuccess;</span>
+<span class="nc" id="L64">    }</span>
+
+    public String getError() {
+<span class="nc" id="L67">        return error;</span>
+    }
+
+    public void setError(String error) {
+<span class="nc" id="L71">        this.error = error;</span>
+<span class="nc" id="L72">    }</span>
+
+    public String getMessage() {
+<span class="nc" id="L75">        return message;</span>
+    }
+
+    public void setMessage(String message) {
+<span class="nc" id="L79">        this.message = message;</span>
+<span class="nc" id="L80">    }</span>
+
+    public String getOtherReference() {
+<span class="nc" id="L83">        return otherReference;</span>
+    }
+
+    public void setOtherReference(String otherReference) {
+<span class="nc" id="L87">        this.otherReference = otherReference;</span>
+<span class="nc" id="L88">    }</span>
+
+    public String getAction() {
+<span class="nc" id="L91">        return action;</span>
+    }
+
+    public void setAction(String action) {
+<span class="nc" id="L95">        this.action = action;</span>
+<span class="nc" id="L96">    }</span>
+
+    public String getOpeningBalance() {
+<span class="nc" id="L99">        return openingBalance;</span>
+    }
+
+    public void setOpeningBalance(String openingBalance) {
+<span class="nc" id="L103">        this.openingBalance = openingBalance;</span>
+<span class="nc" id="L104">    }</span>
+
+    public String getClosingBalance() {
+<span class="nc" id="L107">        return closingBalance;</span>
+    }
+
+    public void setClosingBalance(String closingBalance) {
+<span class="nc" id="L111">        this.closingBalance = closingBalance;</span>
+<span class="nc" id="L112">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L116">        return &quot;SwitchResponse{&quot; + &quot;reference=&quot; + reference + &quot;, amount=&quot; + amount + &quot;, totalFailed=&quot; + totalFailed + &quot;, totalSuccess=&quot; + totalSuccess + &quot;, error=&quot; + error + &quot;, message=&quot; + message + &quot;, otherReference=&quot; + otherReference + &quot;, action=&quot; + action + &quot;, openingBalance=&quot; + openingBalance + &quot;, closingBalance=&quot; + closingBalance + '}';</span>
+    }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,3 @@
+com\etz\cashpoint\CashpointServiceApplicationTests.class
+com\etz\cashpoint\controller\SetupControllerTests.class
+com\etz\cashpoint\controller\TransactionControllerTest.class

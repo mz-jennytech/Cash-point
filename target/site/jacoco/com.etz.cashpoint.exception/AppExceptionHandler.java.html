@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.exception</a> &gt; <span class="el_source">AppExceptionHandler.java</span></div><h1>AppExceptionHandler.java</h1><pre class="source lang-java linenums">package com.etz.cashpoint.exception;
+
+import com.etz.cashpoint.dto.response.BaseResponse;
+import org.hibernate.exception.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
+
+import javax.persistence.PessimisticLockException;
+import javax.persistence.QueryTimeoutException;
+import javax.validation.ConstraintViolationException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ *
+ * @author mishael.harry
+ */
+@RestController
+@ControllerAdvice
+<span class="fc" id="L30">public class AppExceptionHandler {</span>
+    
+    /*@ExceptionHandler(Exception.class)
+    public final ResponseEntity&lt;Object&gt; generalException(Exception ex, WebRequest request){
+        List&lt;String&gt; details = new ArrayList&lt;&gt;();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse(&quot;Server Error&quot;, null);
+         return new ResponseEntity&lt;&gt;(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }*/
+
+    @ExceptionHandler(CashpointException.class)
+    public ResponseEntity&lt;BaseResponse&gt; cashpointException(CashpointException ex) {
+
+<span class="nc" id="L43">        return new ResponseEntity&lt;&gt;(new BaseResponse&lt;&gt;(false, ex.getMessage(), null),</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">                StringUtils.isEmpty(ex.getStatus())? HttpStatus.BAD_GATEWAY: ex.getStatus());</span>
+    }
+ 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NotFoundException.class)
+    public final ResponseEntity&lt;Object&gt; notFoundException(Exception ex, WebRequest request){
+<span class="nc" id="L50">        List&lt;String&gt; details = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L51">        details.add(ex.getLocalizedMessage());        </span>
+<span class="nc" id="L52">        ErrorResponse error = new ErrorResponse(&quot;Record Not Found&quot;, details);</span>
+<span class="nc" id="L53">         return new ResponseEntity&lt;&gt;(error, HttpStatus.NOT_FOUND);</span>
+    }
+    
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(NotAuthorizedException.class)
+    public final ResponseEntity&lt;Object&gt; notAuthorizedException(Exception ex, WebRequest request){
+<span class="nc" id="L59">        List&lt;String&gt; details = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L60">        details.add(ex.getLocalizedMessage());        </span>
+<span class="nc" id="L61">        ErrorResponse error = new ErrorResponse(&quot;Not Authorized&quot;, details);</span>
+<span class="nc" id="L62">         return new ResponseEntity&lt;&gt;(error, HttpStatus.UNAUTHORIZED);</span>
+    }
+    
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(ForbiddenException.class)
+    public final ResponseEntity&lt;Object&gt; forbiddenException(Exception ex, WebRequest request){
+<span class="nc" id="L68">        List&lt;String&gt; details = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L69">        details.add(ex.getLocalizedMessage());        </span>
+<span class="nc" id="L70">        ErrorResponse error = new ErrorResponse(&quot;Access Forbidden&quot;, details);</span>
+<span class="nc" id="L71">         return new ResponseEntity&lt;&gt;(error, HttpStatus.FORBIDDEN);</span>
+    }
+    
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public final ResponseEntity&lt;Object&gt; badRequestException(Exception ex, WebRequest request){
+<span class="nc" id="L77">        List&lt;String&gt; details = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L78">        details.add(ex.getLocalizedMessage());        </span>
+<span class="nc" id="L79">        ErrorResponse error = new ErrorResponse(&quot;Bad Request&quot;, details);</span>
+<span class="nc" id="L80">         return new ResponseEntity&lt;&gt;(error, HttpStatus.BAD_REQUEST);</span>
+    }
+    
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity&lt;Object&gt; methodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+<span class="nc" id="L86">        List&lt;String&gt; details = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        for(ObjectError error : ex.getBindingResult().getAllErrors()) {</span>
+<span class="nc" id="L88">            details.add(error.getDefaultMessage());        }</span>
+<span class="nc" id="L89">        ErrorResponse error = new ErrorResponse(&quot;Validation Failed&quot;, details);</span>
+<span class="nc" id="L90">        return new ResponseEntity&lt;&gt;(error, HttpStatus.BAD_REQUEST);</span>
+    }
+    
+    @ExceptionHandler({ConstraintViolationException.class, DataException.class,
+        JDBCConnectionException.class, LockAcquisitionException.class, PessimisticLockException.class, 
+        QueryTimeoutException.class, SQLGrammarException.class, GenericJDBCException.class })
+    public final ResponseEntity&lt;Object&gt; sqlException(SQLException ex, WebRequest request){
+<span class="nc" id="L97">        List&lt;String&gt; details = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L98">        details.add(ex.getLocalizedMessage());        </span>
+<span class="nc" id="L99">        ErrorResponse error = new ErrorResponse(&quot;Server Error&quot;, null);</span>
+<span class="nc" id="L100">         return new ResponseEntity&lt;&gt;(error, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

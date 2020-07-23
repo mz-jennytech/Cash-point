@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecondaryDbConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.config</a> &gt; <span class="el_source">SecondaryDbConfig.java</span></div><h1>SecondaryDbConfig.java</h1><pre class="source lang-java linenums">package com.etz.cashpoint.config;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+
+@EntityScan(basePackages = &quot;com.etz.cashpoint.model.secondary&quot;)
+@Configuration
+@EnableTransactionManagement
+@EnableJpaRepositories(
+        entityManagerFactoryRef = &quot;secondaryEntityManagerFactory&quot;,
+        transactionManagerRef = &quot;secondaryTransactionManager&quot;,
+        basePackages = {&quot;com.etz.cashpoint.repository.secondary&quot;, &quot;com.etz.cashpoint.model.secondary&quot;, &quot;com.etz.cashpoint.service&quot;}
+)
+<span class="fc" id="L25">public class SecondaryDbConfig extends ApplicationPropertiesConfig {</span>
+
+    @Bean(name = &quot;secondaryDataSource&quot;)
+    public DataSource dataSource() {
+<span class="fc" id="L29">        DriverManagerDataSource dataSource = new DriverManagerDataSource();</span>
+<span class="fc" id="L30">        dataSource.setDriverClassName( config.getSecondary_spring_datasource_driver_class_name());</span>
+<span class="fc" id="L31">        dataSource.setUrl(config.getSecondary_spring_datasource_url());</span>
+<span class="fc" id="L32">        dataSource.setUsername(config.getSecondary_spring_datasource_username());</span>
+<span class="fc" id="L33">        dataSource.setPassword(config.getSecondary_spring_datasource_password());</span>
+<span class="fc" id="L34">        return dataSource;</span>
+    }
+
+    @Bean(name = &quot;secondaryEntityManagerFactory&quot;)
+    public LocalContainerEntityManagerFactoryBean
+    secondaryEntityManagerFactory(@Qualifier(&quot;secondaryDataSource&quot;) DataSource dataSource) {
+<span class="fc" id="L40">        return this.configure(dataSource, &quot;secondary&quot;, &quot;com.etz.cashpoint.model.secondary&quot;);</span>
+    }
+
+    @Bean(name = &quot;secondaryTransactionManager&quot;)
+    public PlatformTransactionManager secondaryTransactionManager(@Qualifier(&quot;secondaryEntityManagerFactory&quot;) EntityManagerFactory secondaryEntityManagerFactory) {
+<span class="fc" id="L45">        return new JpaTransactionManager(secondaryEntityManagerFactory);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

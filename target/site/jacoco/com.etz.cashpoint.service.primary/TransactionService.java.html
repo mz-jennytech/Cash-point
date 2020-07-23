@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.service.primary</a> &gt; <span class="el_source">TransactionService.java</span></div><h1>TransactionService.java</h1><pre class="source lang-java linenums">package com.etz.cashpoint.service.primary;
+
+import com.etz.cashpoint.dto.request.TransactionRequest;
+import com.etz.cashpoint.dto.response.TransactionResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.etz.cashpoint.repository.primary.TransactionRepository;
+import com.etz.cashpoint.dto.response.PagedResponse;
+import com.etz.cashpoint.model.primary.Transaction;
+import com.etz.cashpoint.model.primary.User;
+import com.etz.cashpoint.model.primary.UserPrincipal;
+import com.etz.cashpoint.model.secondary.MPOSDeviceSetup;
+import com.etz.cashpoint.switchit.FundTransfer;
+import com.etz.cashpoint.switchit.SwitchITClient;
+import com.etz.cashpoint.switchit.SwitchResponse;
+import com.etz.cashpoint.util.AppUtil;
+import com.etz.cashpoint.util.ModelMapper;
+import java.util.Collections;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
+
+/**
+ *
+ * @author mishael.harry
+ */
+<span class="fc" id="L32">@Slf4j</span>
+@Service
+<span class="fc" id="L34">public class TransactionService {</span>
+
+    @Autowired
+    private SwitchITClient switchITClient;
+
+    @Value(&quot;${app.switchit.terminalId}&quot;)
+    private String switchITTerminalId;
+
+    @Value(&quot;${app.switchit.bankCode}&quot;)
+    private String beneficiaryBankCode;
+
+    @Value(&quot;${app.switchit.switchITPIN}&quot;)
+    private String switchITPIN;
+
+    @Value(&quot;${app.switchit.switchITUrl}&quot;)
+    private String switchITUrl;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    public boolean existsByPtspReference(String ptspReference) {
+<span class="nc" id="L55">        return transactionRepository.existsByPtspReference(ptspReference);</span>
+    }
+
+    public boolean existsByRrn(String rrn) {
+<span class="nc" id="L59">        return transactionRepository.existsByRrn(rrn);</span>
+    }
+
+    public Transaction createTransaction(UserPrincipal userPrincipal,
+            TransactionRequest transactionRequest, MPOSDeviceSetup deviceSetup, int status) {
+<span class="nc" id="L64">        User user = new User();</span>
+<span class="nc" id="L65">        user.setId(userPrincipal.getId());</span>
+
+<span class="nc" id="L67">        String reference = transactionRequest.getTerminalId() + &quot;-&quot; + transactionRequest.getRrn();</span>
+<span class="nc" id="L68">        Transaction transaction = new Transaction();</span>
+<span class="nc" id="L69">        transaction.setCpReference(reference);</span>
+<span class="nc" id="L70">        transaction.setPtspReference(transactionRequest.getTransactionReference());</span>
+<span class="nc" id="L71">        transaction.setRrn(transactionRequest.getRrn());</span>
+<span class="nc" id="L72">        transaction.setCustomerName(transactionRequest.getCustomerName());</span>
+<span class="nc" id="L73">        transaction.setSerialNo(transactionRequest.getSerialNo());</span>
+<span class="nc" id="L74">        transaction.setTerminalId(transactionRequest.getTerminalId());</span>
+<span class="nc" id="L75">        transaction.setMaskedPan(transactionRequest.getMaskedPAN());</span>
+<span class="nc" id="L76">        transaction.setTransactionType(transactionRequest.getTransactionType());</span>
+<span class="nc" id="L77">        transaction.setStatus(status);</span>
+<span class="nc" id="L78">        transaction.setPtspCode(transactionRequest.getPtspCode());</span>
+<span class="nc" id="L79">        transaction.setDescription(AppUtil.statusDescription(status));</span>
+<span class="nc" id="L80">        transaction.setAmount(transactionRequest.getAmount());</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (deviceSetup != null) {</span>
+<span class="nc" id="L82">            transaction.setMerchantMobile(deviceSetup.getMobileNo());</span>
+        }
+<span class="nc" id="L84">        transaction.setPaymentDate(AppUtil.convertDate(transactionRequest.getPaymentDate()));</span>
+<span class="nc" id="L85">        transaction.setUser(user);</span>
+<span class="nc" id="L86">        log.info(&quot;Transaction Received: &quot; + transaction);</span>
+<span class="nc" id="L87">        return transactionRepository.save(transaction);</span>
+    }
+
+    public void updateTransaction(Transaction transaction) {
+<span class="nc" id="L91">        transactionRepository.save(transaction);</span>
+<span class="nc" id="L92">    }</span>
+
+    public PagedResponse&lt;TransactionResponse&gt; getPtspTransaction(String ptspCode, int page, int size) {
+<span class="nc" id="L95">        AppUtil.validatePageNumberAndSize(page, size);</span>
+<span class="nc" id="L96">        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, &quot;createdAt&quot;);</span>
+
+<span class="nc" id="L98">        Page&lt;Transaction&gt; transactions = transactionRepository.findByPtspCode(ptspCode, pageable);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (transactions.getNumberOfElements() == 0) {</span>
+<span class="nc" id="L100">            return new PagedResponse&lt;&gt;(false, Collections.emptyList(), transactions.getNumber(),</span>
+<span class="nc" id="L101">                    transactions.getSize(), transactions.getTotalElements(), transactions.getTotalPages(), transactions.isLast());</span>
+        }
+
+<span class="nc" id="L104">        List&lt;TransactionResponse&gt; transactionResponses = transactions.map(transaction -&gt; {</span>
+<span class="nc" id="L105">            return ModelMapper.mapTransactionResponse(transaction);</span>
+<span class="nc" id="L106">        }).getContent();</span>
+
+<span class="nc" id="L108">        return new PagedResponse&lt;&gt;(true, transactionResponses, transactions.getNumber(),</span>
+<span class="nc" id="L109">                transactions.getSize(), transactions.getTotalElements(), transactions.getTotalPages(), transactions.isLast());</span>
+    }
+
+    public PagedResponse&lt;TransactionResponse&gt; getMerchantTransaction(String serialNo, String terminalId, int page, int size) {
+<span class="nc" id="L113">        AppUtil.validatePageNumberAndSize(page, size);</span>
+<span class="nc" id="L114">        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, &quot;createdAt&quot;);</span>
+
+<span class="nc" id="L116">        Page&lt;Transaction&gt; transactions = transactionRepository.findBySerialNoAndTerminalId(serialNo, terminalId, pageable);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (transactions.getNumberOfElements() == 0) {</span>
+<span class="nc" id="L118">            return new PagedResponse&lt;&gt;(false, Collections.emptyList(), transactions.getNumber(),</span>
+<span class="nc" id="L119">                    transactions.getSize(), transactions.getTotalElements(), transactions.getTotalPages(), transactions.isLast());</span>
+        }
+
+<span class="nc" id="L122">        List&lt;TransactionResponse&gt; transactionResponses = transactions.map(transaction -&gt; {</span>
+<span class="nc" id="L123">            return ModelMapper.mapTransactionResponse(transaction);</span>
+<span class="nc" id="L124">        }).getContent();</span>
+
+<span class="nc" id="L126">        return new PagedResponse&lt;&gt;(true, transactionResponses, transactions.getNumber(),</span>
+<span class="nc" id="L127">                transactions.getSize(), transactions.getTotalElements(), transactions.getTotalPages(), transactions.isLast());</span>
+    }
+
+    @Async
+    public void processTransaction(Transaction tnzResult) {
+        //Call fundgate to credit merchant with amount
+<span class="nc" id="L133">        switchITClient.setCredential(switchITUrl, switchITPIN, switchITTerminalId);</span>
+
+<span class="nc" id="L135">        FundTransfer fundsTransfer = new FundTransfer();</span>
+<span class="nc" id="L136">        fundsTransfer.setAccountNumber(tnzResult.getMerchantMobile());</span>
+<span class="nc" id="L137">        fundsTransfer.setAmount(tnzResult.getAmount());</span>
+<span class="nc" id="L138">        fundsTransfer.setBankCode(beneficiaryBankCode);</span>
+<span class="nc" id="L139">        fundsTransfer.setDescription(tnzResult.getDescription());</span>
+<span class="nc" id="L140">        fundsTransfer.setReference(tnzResult.getCpReference());</span>
+<span class="nc" id="L141">        fundsTransfer.setEndpoint(&quot;M&quot;);</span>
+
+<span class="nc" id="L143">        SwitchResponse switchResponse = null;</span>
+        try {
+<span class="nc" id="L145">            switchResponse = switchITClient.sendMoney(fundsTransfer);</span>
+<span class="nc" id="L146">            System.out.println(&quot;TransactionController : {} &quot; + switchResponse);</span>
+<span class="nc" id="L147">            log.info(&quot;TransactionController : {} &quot; + switchResponse);</span>
+<span class="nc" id="L148">        } catch (Exception ex) {</span>
+<span class="nc" id="L149">            log.debug(ex.getLocalizedMessage());</span>
+<span class="nc" id="L150">        }</span>
+        
+        //Update transaction status to Success [Status: 1] or Failed [Status: 2] or No response from switchIT [Status: 3] 
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (switchResponse != null) {</span>
+<span class="nc" id="L154">            String responseCode = switchResponse.getError();</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (responseCode.equals(&quot;0&quot;)) {</span>
+<span class="nc" id="L156">                tnzResult.setStatus(1); //Success [Status: 1]</span>
+<span class="nc" id="L157">                tnzResult.setDescription(AppUtil.statusDescription(1));</span>
+<span class="nc" id="L158">                tnzResult.setSwitchError(switchResponse.getError());</span>
+<span class="nc" id="L159">                tnzResult.setSwitchMessage(switchResponse.getMessage());</span>
+<span class="nc" id="L160">                tnzResult.setSwitchReference(switchResponse.getReference());</span>
+<span class="nc" id="L161">                updateTransaction(tnzResult);</span>
+<span class="nc" id="L162">                log.info(&quot;Successful transaction from switchIT ptspReference: &quot; + tnzResult</span>
+                        + &quot; { Status : 1 }&quot;);
+
+            } else {
+<span class="nc" id="L166">                tnzResult.setStatus(2); //Failed [Status: 2]</span>
+<span class="nc" id="L167">                tnzResult.setDescription(AppUtil.statusDescription(2));</span>
+<span class="nc" id="L168">                tnzResult.setSwitchError(switchResponse.getError());</span>
+<span class="nc" id="L169">                tnzResult.setSwitchMessage(switchResponse.getMessage());</span>
+<span class="nc" id="L170">                tnzResult.setSwitchReference(switchResponse.getReference());</span>
+<span class="nc" id="L171">                updateTransaction(tnzResult);</span>
+<span class="nc" id="L172">                log.info(&quot;Failed transaction from switchIT &quot; + tnzResult + &quot; { Status : 2 }&quot; );</span>
+            }
+<span class="nc" id="L174">        } else {</span>
+<span class="nc" id="L175">            tnzResult.setStatus(3); //No response from switchIT [Status: 3]</span>
+<span class="nc" id="L176">            tnzResult.setDescription(AppUtil.statusDescription(3));</span>
+<span class="nc" id="L177">            updateTransaction(tnzResult);</span>
+<span class="nc" id="L178">            log.info(&quot;No response from switchIT&quot;);</span>
+        }
+<span class="nc" id="L180">    }</span>
+
+    public TransactionResponse getTransaction(String cpReference) {
+<span class="nc" id="L183">        Transaction transaction = transactionRepository.findByCpReference(cpReference);</span>
+<span class="nc" id="L184">        return ModelMapper.mapTransactionResponse(transaction);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

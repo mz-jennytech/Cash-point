@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FundTransfer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.switchit</a> &gt; <span class="el_source">FundTransfer.java</span></div><h1>FundTransfer.java</h1><pre class="source lang-java linenums">package com.etz.cashpoint.switchit;
+
+/**
+ *
+ * @author mishael.harry
+ */
+<span class="nc" id="L7">public class FundTransfer {</span>
+    private String accountNumber;
+    private String cardNumber;
+    private String bankCode;
+    private Double amount;
+    private String reference;
+    private String senderName;
+    private String description;
+    private String endpoint;
+    private boolean isCardTransfer;
+
+    public String getAccountNumber() {
+<span class="nc" id="L19">        return accountNumber;</span>
+    }
+
+    public void setAccountNumber(String accountNumber) {
+<span class="nc" id="L23">        this.accountNumber = accountNumber;</span>
+<span class="nc" id="L24">    }</span>
+
+    public String getCardNumber() {
+<span class="nc" id="L27">        return cardNumber;</span>
+    }
+
+    public void setCardNumber(String cardNumber) {
+<span class="nc" id="L31">        this.cardNumber = cardNumber;</span>
+<span class="nc" id="L32">    }</span>
+
+    public String getBankCode() {
+<span class="nc" id="L35">        return bankCode;</span>
+    }
+
+    public void setBankCode(String bankCode) {
+<span class="nc" id="L39">        this.bankCode = bankCode;</span>
+<span class="nc" id="L40">    }</span>
+
+    public Double getAmount() {
+<span class="nc" id="L43">        return amount;</span>
+    }
+
+    public void setAmount(Double amount) {
+<span class="nc" id="L47">        this.amount = amount;</span>
+<span class="nc" id="L48">    }</span>
+
+    public String getReference() {
+<span class="nc" id="L51">        return reference;</span>
+    }
+
+    public void setReference(String reference) {
+<span class="nc" id="L55">        this.reference = reference;</span>
+<span class="nc" id="L56">    }</span>
+
+    public String getSenderName() {
+<span class="nc" id="L59">        return senderName;</span>
+    }
+
+    public void setSenderName(String senderName) {
+<span class="nc" id="L63">        this.senderName = senderName;</span>
+<span class="nc" id="L64">    }</span>
+
+    public String getDescription() {
+<span class="nc" id="L67">        return description;</span>
+    }
+
+    public void setDescription(String description) {
+<span class="nc" id="L71">        this.description = description;</span>
+<span class="nc" id="L72">    }</span>
+
+    public String getEndpoint() {
+<span class="nc" id="L75">        return endpoint;</span>
+    }
+
+    public void setEndpoint(String endpoint) {
+<span class="nc" id="L79">        this.endpoint = endpoint;</span>
+<span class="nc" id="L80">    }</span>
+    
+    public boolean isCardTransfer() {
+<span class="nc" id="L83">        return isCardTransfer;</span>
+    }
+
+    public void setCardTransfer(boolean cardTransfer) {
+<span class="nc" id="L87">        isCardTransfer = cardTransfer;</span>
+<span class="nc" id="L88">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

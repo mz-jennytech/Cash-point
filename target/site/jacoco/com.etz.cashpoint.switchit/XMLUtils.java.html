@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XMLUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.switchit</a> &gt; <span class="el_source">XMLUtils.java</span></div><h1>XMLUtils.java</h1><pre class="source lang-java linenums">package com.etz.cashpoint.switchit;
+
+import org.springframework.stereotype.Service;
+
+/**
+ *
+ * @author mishael.harry
+ */
+@Service
+public class XMLUtils {
+
+    String xml;
+
+<span class="fc" id="L14">    public XMLUtils() {</span>
+<span class="fc" id="L15">    }</span>
+
+    public void setXml(String xml) {
+<span class="nc" id="L18">        this.xml = xml;</span>
+<span class="nc" id="L19">    }</span>
+
+    public String getXMLValue(String tagName) {
+        try {
+<span class="nc" id="L23">            return removeNewLine(this.xml.substring(this.xml.indexOf(&quot;&lt;&quot; + tagName + &quot;&gt;&quot;) + tagName.length() + 2, this.xml</span>
+<span class="nc" id="L24">                    .indexOf(&quot;&lt;/&quot; + tagName + &quot;&gt;&quot;)).trim());</span>
+<span class="nc" id="L25">        } catch (Exception sd) {</span>
+        }
+<span class="nc" id="L27">        return &quot;&quot;;</span>
+    }
+
+    private String removeNewLine(String textValue) {
+<span class="nc" id="L31">        textValue = textValue.replaceAll(&quot;\n&quot;, &quot;&quot;);</span>
+<span class="nc" id="L32">        textValue = textValue.replaceAll(&quot;\t&quot;, &quot;&quot;);</span>
+<span class="nc" id="L33">        textValue = textValue.replaceAll(&quot;\\n&quot;, &quot;&quot;);</span>
+<span class="nc" id="L34">        textValue = textValue.replaceAll(&quot;\\t&quot;, &quot;&quot;);</span>
+<span class="nc" id="L35">        textValue = textValue.replaceAll(&quot;\r&quot;, &quot;&quot;);</span>
+<span class="nc" id="L36">        textValue = textValue.replaceAll(&quot;\\r&quot;, &quot;&quot;);</span>
+<span class="nc" id="L37">        textValue = textValue.replaceAll(&quot;\r\n&quot;, &quot;&quot;);</span>
+<span class="nc" id="L38">        textValue = textValue.replaceAll(&quot;\\r\\n&quot;, &quot;&quot;);</span>
+<span class="nc" id="L39">        return textValue;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

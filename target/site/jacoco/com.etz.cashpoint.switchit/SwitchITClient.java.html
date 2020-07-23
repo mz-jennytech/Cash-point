@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwitchITClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.switchit</a> &gt; <span class="el_source">SwitchITClient.java</span></div><h1>SwitchITClient.java</h1><pre class="source lang-java linenums">package com.etz.cashpoint.switchit;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+/**
+ * @author mishael.harry
+ */
+<span class="fc" id="L16">@Slf4j</span>
+@Service
+public class SwitchITClient {
+
+    private String url;
+    private String pin;
+    private String terminalId;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private XMLUtils xMLUtils;
+
+<span class="fc" id="L30">    public SwitchITClient() {</span>
+<span class="fc" id="L31">        log.info(&quot;Initializing SwitchIT Client&quot;);</span>
+<span class="fc" id="L32">    }</span>
+
+    public void setCredential(String url, String pin, String terminalId) {
+<span class="nc" id="L35">        this.url = url;</span>
+<span class="nc" id="L36">        this.pin = pin;</span>
+<span class="nc" id="L37">        this.terminalId = terminalId;</span>
+<span class="nc" id="L38">        log.info(&quot;ROUTING TRANSACTIONS to &quot; + url + &quot; with termainl ID &quot; + terminalId);</span>
+<span class="nc" id="L39">    }</span>
+
+    public SwitchResponse sendMoney(FundTransfer ft) throws Exception {
+        String identifier;
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (ft.isCardTransfer()) {</span>
+<span class="nc" id="L44">            identifier = ft.getCardNumber();</span>
+           // log.info(&quot;Funds Transfer to Account: &quot; + identifier);
+        } else {
+<span class="nc" id="L47">            identifier = ft.getAccountNumber();</span>
+          //  log.info(&quot;Funds Transfer to Card: &quot; + identifier);
+        }
+
+<span class="nc" id="L51">        String xmlPayload = &quot;&lt;soapenv:Envelope xmlns:soapenv=\&quot;http://schemas.xmlsoap.org/soap/envelope/\&quot; xmlns:ws=\&quot;http://ws.fundgate.etranzact.com/\&quot;&gt;\n&quot;</span>
+                + &quot;   &lt;soapenv:Header/&gt;\n&quot;
+                + &quot;   &lt;soapenv:Body&gt;\n&quot;
+                + &quot;      &lt;ws:process&gt;\n&quot;
+                + &quot;         &lt;request&gt;\n&quot;
+                + &quot;            &lt;direction&gt;request&lt;/direction&gt;\n&quot;
+                + &quot;            &lt;action&gt;FT&lt;/action&gt;\n&quot;
+                + &quot;            &lt;terminalId&gt;&quot; + terminalId + &quot;&lt;/terminalId&gt;\n&quot;
+                + &quot;            &lt;transaction&gt;\n&quot;
+                + &quot;               &lt;pin&gt;&quot; + pin + &quot;&lt;/pin&gt;\n&quot;
+<span class="nc" id="L61">                + &quot;               &lt;bankCode&gt;&quot; + ft.getBankCode() + &quot;&lt;/bankCode&gt;\n&quot;</span>
+                + &quot;               &lt;currency&gt;NGN&lt;/currency&gt;\n&quot;
+<span class="nc" id="L63">                + &quot;               &lt;amount&gt;&quot; + ft.getAmount() + &quot;&lt;/amount&gt;\n&quot;</span>
+<span class="nc" id="L64">                + &quot;               &lt;description&gt;&quot; + ft.getDescription() + &quot;&lt;/description&gt;\n&quot;</span>
+                + &quot;               &lt;destination&gt;&quot; + identifier + &quot;&lt;/destination&gt;\n&quot;
+<span class="nc" id="L66">                + &quot;               &lt;reference&gt;&quot; + ft.getReference() + &quot;&lt;/reference&gt;\n&quot;</span>
+<span class="nc" id="L67">                + &quot;               &lt;endPoint&gt;&quot; + ft.getEndpoint() + &quot;&lt;/endPoint&gt;\n&quot;</span>
+                + &quot;            &lt;/transaction&gt;\n&quot;
+                + &quot;         &lt;/request&gt;\n&quot;
+                + &quot;      &lt;/ws:process&gt;\n&quot;
+                + &quot;   &lt;/soapenv:Body&gt;\n&quot;
+                + &quot;&lt;/soapenv:Envelope&gt;&quot;;
+
+<span class="nc" id="L74">        String response = sendPost(url, xmlPayload);</span>
+<span class="nc" id="L75">        xMLUtils.setXml(response);</span>
+<span class="nc" id="L76">        return new SwitchResponse(xMLUtils.getXMLValue(&quot;reference&quot;), Double.parseDouble(xMLUtils.getXMLValue(&quot;amount&quot;)), xMLUtils.getXMLValue(&quot;totalFailed&quot;), xMLUtils.getXMLValue(&quot;totalSuccess&quot;), xMLUtils.getXMLValue(&quot;error&quot;), xMLUtils.getXMLValue(&quot;message&quot;), xMLUtils.getXMLValue(&quot;otherReference&quot;), xMLUtils.getXMLValue(&quot;action&quot;), xMLUtils.getXMLValue(&quot;openingBalance&quot;), xMLUtils.getXMLValue(&quot;closingBalance&quot;));</span>
+    }
+
+    private String sendPost(String url, String payload) {
+<span class="nc" id="L80">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="nc" id="L81">        headers.setContentType(MediaType.TEXT_XML);</span>
+<span class="nc" id="L82">        HttpEntity&lt;String&gt; request = new HttpEntity&lt;&gt;(payload, headers);</span>
+<span class="nc" id="L83">        ResponseEntity&lt;String&gt; response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);</span>
+<span class="nc" id="L84">        return response.getBody();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

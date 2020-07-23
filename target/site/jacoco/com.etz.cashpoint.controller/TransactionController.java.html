@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.controller</a> &gt; <span class="el_source">TransactionController.java</span></div><h1>TransactionController.java</h1><pre class="source lang-java linenums">/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.etz.cashpoint.controller;
+
+import com.etz.cashpoint.dto.request.TransactionRequest;
+import com.etz.cashpoint.dto.response.BaseResponse;
+import com.etz.cashpoint.dto.response.PagedResponse;
+import com.etz.cashpoint.dto.response.TransactionResponse;
+import com.etz.cashpoint.exception.CashpointException;
+import com.etz.cashpoint.model.primary.CurrentUser;
+import com.etz.cashpoint.model.primary.Transaction;
+import com.etz.cashpoint.model.primary.UserPrincipal;
+import com.etz.cashpoint.model.secondary.MPOSDeviceSetup;
+import com.etz.cashpoint.service.primary.TransactionService;
+import com.etz.cashpoint.service.primary.UserService;
+import com.etz.cashpoint.service.secondary.MPOSDeviceService;
+import com.etz.cashpoint.switchit.FundTransfer;
+import com.etz.cashpoint.switchit.SwitchITClient;
+import com.etz.cashpoint.switchit.SwitchResponse;
+import com.etz.cashpoint.util.AppConstants;
+import com.etz.cashpoint.util.AppUtil;
+import com.etz.cashpoint.util.ModelMapper;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+/**
+ *
+ * @author mishael.harry
+ */
+@RefreshScope
+@RestController
+@RequestMapping(&quot;/api/cashpoint/v1&quot;)
+<span class="fc" id="L45">@Slf4j</span>
+public class TransactionController {
+
+    private final UserService userService;
+    
+    private final MPOSDeviceService pOSDeviceService;
+
+    private final TransactionService transactionService;
+
+    @Autowired
+<span class="fc" id="L55">    public TransactionController(UserService userService, MPOSDeviceService pOSDeviceService, TransactionService transactionService) {</span>
+<span class="fc" id="L56">        this.userService = userService;</span>
+<span class="fc" id="L57">        this.pOSDeviceService = pOSDeviceService;</span>
+<span class="fc" id="L58">        this.transactionService = transactionService;</span>
+<span class="fc" id="L59">    }</span>
+
+    @PreAuthorize(&quot;hasRole('PTSP')&quot;)
+    @PostMapping(&quot;/transactions&quot;)
+    public ResponseEntity&lt;BaseResponse&lt;TransactionResponse&gt;&gt; createTransaction(@CurrentUser UserPrincipal currentUser,
+                                                                               @Valid @RequestBody TransactionRequest transactionRequest) {
+<span class="nc" id="L65">        String ptspCode = transactionRequest.getPtspCode().trim();</span>
+<span class="nc" id="L66">        String reference = transactionRequest.getTransactionReference().trim();</span>
+<span class="nc" id="L67">        String serialNo = transactionRequest.getSerialNo().trim();</span>
+<span class="nc" id="L68">        String terminalId = transactionRequest.getTerminalId().trim();</span>
+<span class="nc" id="L69">        String rrn = transactionRequest.getRrn().trim();</span>
+
+        //Verify that PTSP exist
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!userService.existsByPtspCode(ptspCode)) {</span>
+<span class="nc" id="L73">            throw new CashpointException(transactionRequest.getPtspCode()</span>
+                    + &quot; Code doesn't exist on cashpoint...kindly contact our support team&quot;);
+        }
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (transactionService.existsByPtspReference(reference)) {</span>
+<span class="nc" id="L78">            throw new CashpointException(&quot;Duplicate Transaction Reference: &quot; + reference);</span>
+        }
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (transactionService.existsByRrn(rrn)) {</span>
+<span class="nc" id="L82">            throw new CashpointException(&quot;Duplicate RRN: &quot; + rrn);</span>
+        }
+
+        //Verify that merchant exist
+<span class="nc" id="L86">        MPOSDeviceSetup mPOSDeviceSetup = pOSDeviceService.findMPOSDevice(serialNo, terminalId);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (mPOSDeviceSetup == null) {</span>
+            //Log transaction as No Destination Merchant to Credit [Status: -1]
+<span class="nc" id="L89">            Transaction result = transactionService.createTransaction(currentUser, transactionRequest, mPOSDeviceSetup, -1);</span>
+<span class="nc" id="L90">            log.info(&quot;No merchant was found with SerialNo: &quot;+ serialNo + &quot; and TerminalId: &quot; + terminalId);</span>
+<span class="nc" id="L91">            return ResponseEntity.ok(new BaseResponse&lt;TransactionResponse&gt;(true, &quot;No merchant was found with SerialNo: &quot;</span>
+                    + serialNo + &quot; and TerminalId: &quot; + terminalId,
+<span class="nc" id="L93">                    ModelMapper.mapTransactionResponse(result)</span>
+            ));
+        }
+
+        //Log Transaction as Pending [Status: 0]
+<span class="nc" id="L98">        Transaction tnzResult = transactionService.createTransaction(currentUser, </span>
+                transactionRequest, mPOSDeviceSetup, 0);
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (tnzResult != null) {</span>
+            
+            //Handover to another thread
+<span class="nc" id="L104">            transactionService.processTransaction(tnzResult);</span>
+            
+<span class="nc" id="L106">            return ResponseEntity.ok(new BaseResponse&lt;TransactionResponse&gt;(true, &quot;Transaction was successful.&quot;,</span>
+<span class="nc" id="L107">                            ModelMapper.mapTransactionResponse(tnzResult)</span>
+                    ));            
+        } else {
+<span class="nc" id="L110">            throw new CashpointException(&quot;Cashpoint etz failed to log transaction&quot;);</span>
+        }        
+    }
+    
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @GetMapping(&quot;/transactions/{cpReference}&quot;)
+    public ResponseEntity&lt;BaseResponse&lt;TransactionResponse&gt;&gt; getTransaction(@PathVariable(&quot;cpReference&quot;) String cpReference) {
+<span class="nc" id="L117">        TransactionResponse response = transactionService.getTransaction(cpReference);</span>
+        
+<span class="nc" id="L119">        return ResponseEntity.ok(new BaseResponse&lt;TransactionResponse&gt;(true, &quot;Transactions Retrieved Successfully&quot;,</span>
+                            response
+                    ));
+    }
+    
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @GetMapping(&quot;/transactions/ptsp/{ptspCode}&quot;)
+    public ResponseEntity&lt;PagedResponse&lt;TransactionResponse&gt;&gt; getPtspTransactions(@PathVariable(&quot;ptspCode&quot;) String ptspCode,
+            @RequestParam(value = &quot;page&quot;, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+            @RequestParam(value = &quot;size&quot;, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+<span class="nc" id="L129">        PagedResponse&lt;TransactionResponse&gt; response = transactionService.getPtspTransaction(ptspCode, page, size);</span>
+<span class="nc" id="L130">        response.setMessage(&quot;Transactions Retrieved Successfully&quot;);</span>
+<span class="nc" id="L131">        return ResponseEntity.ok(response);</span>
+    }
+
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @GetMapping(&quot;/transactions/merchants&quot;)
+    public ResponseEntity&lt;PagedResponse&lt;TransactionResponse&gt;&gt; getMerchantTransactions(@RequestParam(&quot;terminalId&quot;) String terminalId,
+            @RequestParam(value = &quot;serialNo&quot;) String serialNo,
+            @RequestParam(value = &quot;page&quot;, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+            @RequestParam(value = &quot;size&quot;, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+<span class="nc" id="L140">        PagedResponse&lt;TransactionResponse&gt; response = transactionService.getMerchantTransaction(serialNo, terminalId, page, size);</span>
+<span class="nc" id="L141">        response.setMessage(&quot;Transactions Retrieved Successfully&quot;);</span>
+<span class="nc" id="L142">        return ResponseEntity.ok(response);</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

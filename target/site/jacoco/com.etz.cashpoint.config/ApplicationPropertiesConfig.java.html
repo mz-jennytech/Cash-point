@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationPropertiesConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashpoint-service</a> &gt; <a href="index.source.html" class="el_package">com.etz.cashpoint.config</a> &gt; <span class="el_source">ApplicationPropertiesConfig.java</span></div><h1>ApplicationPropertiesConfig.java</h1><pre class="source lang-java linenums">package com.etz.cashpoint.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+
+import javax.sql.DataSource;
+import java.util.HashMap;
+
+<span class="fc" id="L10">public class ApplicationPropertiesConfig {</span>
+
+    @Autowired
+    protected PropertyConfig config;
+
+    LocalContainerEntityManagerFactoryBean configure(DataSource dataSource, String persistenceUnit, String... packageToScan) {
+
+<span class="fc" id="L17">        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();</span>
+<span class="fc" id="L18">        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();</span>
+<span class="fc" id="L19">        vendorAdapter.setGenerateDdl(true);</span>
+<span class="fc" id="L20">        HashMap&lt;String, Object&gt; properties = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L22">        properties.put(&quot;spring.jpa.database-platform&quot;, config.getSpring_jpa_database_platform());</span>
+<span class="fc" id="L23">        properties.put(&quot;spring.jpa.generate-ddl&quot;, config.getSpring_jpa_generate_ddl());</span>
+<span class="fc" id="L24">        properties.put(&quot;hibernate.hbm2ddl.auto&quot;, config.getSpring_jpa_hibernate_ddl_auto());</span>
+<span class="fc" id="L25">        properties.put(&quot;hibernate.physical_naming_strategy&quot;, config.getHibernate_physical_naming_strategy());</span>
+<span class="fc" id="L26">        properties.put(&quot;hibernate.show_sql&quot;, config.getSpring_jpa_show_sql());</span>
+<span class="fc" id="L27">        properties.put(&quot;hibernate.dialect&quot;, config.getHibernate_dialect());</span>
+
+<span class="fc" id="L29">        em.setDataSource(dataSource);</span>
+<span class="fc" id="L30">        em.setJpaPropertyMap(properties);</span>
+<span class="fc" id="L31">        em.setPackagesToScan(packageToScan);</span>
+<span class="fc" id="L32">        em.setPersistenceUnitName(persistenceUnit);</span>
+<span class="fc" id="L33">        em.setJpaVendorAdapter(vendorAdapter);</span>
+<span class="fc" id="L34">        em.afterPropertiesSet();</span>
+
+<span class="fc" id="L36">        return em;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
